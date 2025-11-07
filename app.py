@@ -72,6 +72,7 @@ def generate_true_false():
     return text, correct
 
 
+# ✅ الدالة بعد الإصلاح
 def generate_debug():
     code = random.choice([
         "for i in range(5)\n    print(i)",
@@ -79,8 +80,15 @@ def generate_debug():
         "def f()\n    return 10",
         "print(unknown_var)"
     ])
+
     template = random.choice(debug_templates)
-    text = template.format(code=code)
+
+    # ✅ نتأكد أن القالب يحتوي على {code}
+    if "{code}" in template[0]:
+        text = template[0].format(code=code)
+    else:
+        text = template[0]
+
     return text, None
 
 
@@ -105,7 +113,7 @@ def generate_test(num_questions=5):
 # --------------------------
 
 st.title("✅ مولّد اختبارات برمجية تلقائيًا")
-st.write("أضغط زر التوليد لإنشاء اختبار جديد بدون أي API خارجية.")
+st.write("اضغط زر التوليد لإنشاء اختبار جديد بدون أي API خارجية.")
 
 num = st.slider("عدد الأسئلة:", 3, 20, 7)
 
