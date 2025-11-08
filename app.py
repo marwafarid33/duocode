@@ -25,7 +25,6 @@ debug_templates = [
     ("What will cause this code to crash?\n\n{code}", None)
 ]
 
-
 # --------------------------
 # دوال توليد البيانات
 # --------------------------
@@ -125,24 +124,42 @@ if st.button("✨ توليد اختبار"):
         st.subheader(f"Q{idx}")
         st.code(q)
 
-        if a:  # لو السؤال له إجابة
+        if a:  # أسئلة لها إجابة
             user_answers[idx] = st.text_input(f"إجابتك للسؤال {idx}:", key=f"ans_{idx}")
             correct_answers[idx] = a
-        else:
-            st.info("🔧 هذا السؤال للتصحيح البرمجي ولا يحتاج إجابة.")
+        else:  # أسئلة Debug
+            st.info("🔧 هذا السؤال للتصحيح ولا يحتاج إجابة.")
             correct_answers[idx] = None
 
         st.markdown("---")
 
-    # زر التصحيح
+    # ------------ زر التصحيح ------------
     if st.button("✅ تصحيح الإجابات"):
         st.subheader("نتيجة التصحيح:")
 
-        for idx in user_answers:
-            user = user_answers[idx].strip().lower()
-            correct = correct_answers[idx].strip().lower()
+        progress = st.progress(0)  # شريط تقدم
+        total = 0
+        correct_count = 0
+        total_questions = len(user_answers)
+
+        for idx, qindex in enumerate(user_answers):
+            user = user_answers[qindex].strip().lower()
+            correct = correct_answers[qindex].strip().lower()
 
             if user == correct:
-                st.success(f"✅ سؤال {idx}: إجابة صحيحة!")
+                st.success(f"✅ سؤال {qindex}: إجابة صحيحة!")
+                correct_count += 1
             else:
-                st.error(f"❌ سؤال {idx}: إجابة خاطئة. الصحيحة هي: **{correct_answers[idx]}**")
+                st.error(f"❌ سؤال {qindex}: إجابة خاطئة. الصحيحة هي: **{correct_answers[qindex]}**")
+
+            total += 1
+            progress.progress(int((idx + 1) / total_questions * 100))  # تحديث شريط التقدم
+
+        # ------------ حساب الدرجة والنسبة ------------
+        score = correct_count
+        percentage = (correct_count / total) * 100 if total > 0 else 0
+
+        st.write("---")
+        st.subheader("📊 النتيجة النهائية")
+        st.info(f"✅ الدرجة: **{score} / {total}**")
+        st.info(f"📈 نسبة النجاح: **{percentage:.2f}%**")
