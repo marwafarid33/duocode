@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit as st 
 import random
 
 # --------------------------
@@ -72,7 +72,6 @@ def generate_true_false():
     return text, correct
 
 
-# ✅ الدالة بعد الإصلاح
 def generate_debug():
     code = random.choice([
         "for i in range(5)\n    print(i)",
@@ -83,7 +82,6 @@ def generate_debug():
 
     template = random.choice(debug_templates)
 
-    # ✅ نتأكد أن القالب يحتوي على {code}
     if "{code}" in template[0]:
         text = template[0].format(code=code)
     else:
@@ -109,7 +107,7 @@ def generate_test(num_questions=5):
 
 
 # --------------------------
-# واجهة Streamlit
+# واجهة Streamlit + التصحيح
 # --------------------------
 
 st.title("✅ مولّد اختبارات برمجية تلقائيًا")
@@ -119,11 +117,32 @@ num = st.slider("عدد الأسئلة:", 3, 20, 7)
 
 if st.button("✨ توليد اختبار"):
     questions = generate_test(num)
+
+    user_answers = {}
+    correct_answers = {}
+
     for idx, q, a in questions:
         st.subheader(f"Q{idx}")
         st.code(q)
 
-        if a:
-            st.info(f"✅ Correct Answer: **{a}**")
+        if a:  # لو السؤال له إجابة
+            user_answers[idx] = st.text_input(f"إجابتك للسؤال {idx}:", key=f"ans_{idx}")
+            correct_answers[idx] = a
+        else:
+            st.info("🔧 هذا السؤال للتصحيح البرمجي ولا يحتاج إجابة.")
+            correct_answers[idx] = None
 
         st.markdown("---")
+
+    # زر التصحيح
+    if st.button("✅ تصحيح الإجابات"):
+        st.subheader("نتيجة التصحيح:")
+
+        for idx in user_answers:
+            user = user_answers[idx].strip().lower()
+            correct = correct_answers[idx].strip().lower()
+
+            if user == correct:
+                st.success(f"✅ سؤال {idx}: إجابة صحيحة!")
+            else:
+                st.error(f"❌ سؤال {idx}: إجابة خاطئة. الصحيحة هي: **{correct_answers[idx]}**")
